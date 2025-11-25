@@ -1,0 +1,7 @@
+## Build Instructions
+
+Compile using:
+g++ -std=c++11 *.cpp -o calc
+
+Run using:
+./calc -cp -a 100000 -i 12 -n 360
