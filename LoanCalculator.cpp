@@ -1,22 +1,34 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec
 #include "LoanCalculator.h"
 #include <cmath>
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
 
+<<<<<<< HEAD
 LoanCalculator::LoanCalculator() 
     : amount_(0), initialPayment_(0), interest_(0), interestPeriodic_(0),
       payment_(0), periodTotal_(0), periodElapsed_(0),
       openingFee_(0), openingPercent_(0) {}
 
 // Validate positive number
+=======
+LoanCalculator::LoanCalculator() {}
+
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec
 void LoanCalculator::validatePositive(long double value, const std::string &msg)
 {
     if(value < 0)
         throw std::invalid_argument(msg);
 }
 
+<<<<<<< HEAD
 // Setters & Getters
+=======
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec
 void LoanCalculator::setAmount(long double A)
 {
     validatePositive(A, "Amount cannot be negative");
@@ -37,7 +49,11 @@ void LoanCalculator::setInterest(long double i)
 {
     validatePositive(i, "Interest cannot be negative");
     interest_ = i;
+<<<<<<< HEAD
     interestPeriodic_ = (i / 100.0L) / 12.0L; // monthly rate
+=======
+    interestPeriodic_ = (i / 100.0L) / 12.0L;
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec
 }
 
 long double LoanCalculator::getInterest() const { return interest_; }
@@ -88,6 +104,7 @@ void LoanCalculator::reset()
     periodTotal_ = periodElapsed_ = 0;
 }
 
+<<<<<<< HEAD
 // ===================== Calculation Functions =====================
 
 // EMI calculation
@@ -145,6 +162,33 @@ long double LoanCalculator::calculateLoanAmount()
     if(interestPeriodic_ == 0.0L)
         return payment_ * periodTotal_;
 
+=======
+long double LoanCalculator::calculatePayment()
+{
+    if(amount_ <= 0 || interest_ <= 0 || periodTotal_ <= 0)
+        throw std::invalid_argument("Missing required parameters");
+
+    long double principal = amount_ - initialPayment_;
+    principal += openingFee_ + (principal * openingPercent_ / 100);
+
+    return (interestPeriodic_ * principal) / (1 - powl(1 + interestPeriodic_, -periodTotal_));
+}
+
+long double LoanCalculator::calculateLoanBalance()
+{
+    return (amount_ * powl(1 + interestPeriodic_, periodElapsed_)) -
+           (payment_ / interestPeriodic_) * (powl(1 + interestPeriodic_, periodElapsed_) - 1);
+}
+
+long double LoanCalculator::calculateNumberPayments()
+{
+    return -logl(1 - (interestPeriodic_ * amount_ / payment_)) /
+            logl(1 + interestPeriodic_);
+}
+
+long double LoanCalculator::calculateLoanAmount()
+{
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec
     return (payment_ / interestPeriodic_) * (1 - powl(1 + interestPeriodic_, -periodTotal_));
 }
 
@@ -153,6 +197,7 @@ long double LoanCalculator::calculateInterestRate()
     return interest_;
 }
 
+<<<<<<< HEAD
 // Effective interest (approx.)
 long double LoanCalculator::calculateEffectiveInterestRate()
 {
@@ -164,6 +209,15 @@ long double LoanCalculator::calculateEffectiveInterestRate()
 
 // Summary
 std::string LoanCalculator::toString()
+=======
+long double LoanCalculator::calculateEffectiveInterestRate()
+{
+    long double payment = calculatePayment();
+    return ((payment * periodTotal_) - amount_) / amount_ * 100;
+}
+
+std::string LoanCalculator::toString() const
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec
 {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
@@ -176,3 +230,7 @@ std::string LoanCalculator::toString()
 
     return ss.str();
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec

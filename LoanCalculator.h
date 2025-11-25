@@ -107,6 +107,7 @@ public:
 
 private:
     long double amount_;
+<<<<<<< HEAD
     long double initialPayment_;
     long double interest_;
     long double interestPeriodic_;
@@ -118,6 +119,26 @@ private:
 
     // Add this line:
     void validatePositive(long double value, const std::string &msg);
+=======
+    bool amountSet_;
+
+    long double initialPayment_;
+    long double interest_;
+    long double interestPeriodic_;
+    bool interestSet_;
+
+    long double payment_;
+    bool paymentSet_;
+
+    int periodTotal_;
+    bool periodTotalSet_;
+
+    int periodElapsed_;
+    bool periodElapsedSet_;
+
+    long double openingFee_;
+    long double openingPercent_;
+>>>>>>> 43aab25709ed06233bb6fd502818d379b384b1ec
 };
 
 #endif // LOANCALCULATOR_H_INCLUDED
