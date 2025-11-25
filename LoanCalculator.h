@@ -1,136 +1,130 @@
 #ifndef LOANCALCULATOR_H_INCLUDED
 #define LOANCALCULATOR_H_INCLUDED
 
-/*
-Formulas from: http://oakroadsystems.com/math/loan.htm
-
-Loan balance after n payments have been made:
-  B_n = A*(1+i)^n - (P/i)*((1+i)^n - 1)
-
-
-Payment amount on a loan:
-  P = i*A / (1 - (1+i)^-N)
-
-
-Number of payments on a loan: (You can use any logarithm base, as long as both logs use the same base.)
-                              Aunt Sally offers to lend you $3500 at 6% for that new home theater system you want.
-                              If you pay her back $100 a month, how long will it take?
-                              Solution:  6% per year is 0.5% per month, or 0.005. P = 100 and A = 3500. N = 38.57
-  N = -log(1-i*A/P) / log(1+i)
-
-
-Original loan amount:
-  A = (P/i)*(1 - (1+i)^-N)
-
-
-Interest Rate:
-  i = (((1 + P/A)^(1/q) - 1 )^q - 1)  NOTICE: This is an approximate not an exact solution
-  where q = log(1+1/N) / log(2)
-
-
-Variables:
-A   	the loan amount (the principal sum) or initial investment
-B_n or Bn   	(pronounced B sub n) the balance after n payments have been made. After the last payment has been made, B_N is zero.)
-i   	the interest rate per period, not per year
-      (For instance, if the loan payments are made monthly and the interest rate is 9%, then i = 9%/12 = 0.75% = 0.0075.)
-n   	the number of time periods elapsed at any given point
-N   	the total number of payments for the entire loan or investment
-P   	the amount of each equal payment
-*/
-
 #include <string>
 
+/**
+ * @brief Simple loan calculator for common loan calculations (EMI, balance, etc).
+ *
+ * Uses yearly interest in percent (e.g. 6.5) which is converted internally to a
+ * monthly periodic interest value.
+ */
 class LoanCalculator
 {
 public:
-  LoanCalculator();
-  ~LoanCalculator() {}
+    /**
+     * @brief Construct a new LoanCalculator object.
+     */
+    LoanCalculator();
 
-  //
-  // Setters and Getters
-  //
+    /**
+     * @brief Set the initial loan amount (principal).
+     * @param A Principal amount (must be >= 0)
+     * @throws std::invalid_argument if A < 0
+     */
+    void setAmount(long double A);
 
-  /**
-   * Total loan amount A
-   */
-  inline void setAmount(float A) { amount_ = A; amountSet_ = true; }
-  inline float getAmount() const { return amount_; }
+    long double getAmount() const;
 
-  /**
-   * Initial down payment
-   */
-  inline void setInitialPayment(float initialA)  { initialPayment_ = initialA; }
-  inline float getInitialPayment() const         { return initialPayment_; }
+    /**
+     * @brief Set an initial upfront payment applied to the loan.
+     * @param initialA Upfront payment (must be >= 0)
+     * @throws std::invalid_argument if initialA < 0
+     */
+    void setInitialPayment(long double initialA);
+    long double getInitialPayment() const;
 
-  /**
-   * Yearly interest rate i as in 6.75
-   * Internally .0675/12 will be used
-   * If 6.75 is passed to setInterest()
-   *    getInterest() will return 6.75
-   *    getPeriodicInterest() will return .0675/12.0
-   */
-  void setInterest(float i) { interest_ = i; interestPeriodic_ = i/100.0/12.0; interestSet_ = true; }
-  inline float getInterest() const         { return interest_; }
-  inline float getPeriodicInterest() const { return interestPeriodic_; }
+    /**
+     * @brief Set the yearly interest rate (percent).
+     * @param i Yearly interest in percent (e.g. 6.5). Must be >= 0.
+     * @throws std::invalid_argument if i < 0
+     */
+    void setInterest(long double i);
+    long double getInterest() const;
 
-  void setPayment(float P)        { payment_ = P; paymentSet_ = true; }
-  inline float getPayment() const { return payment_; }
+    /**
+     * @brief Set the monthly payment. (Used when computing number of payments, etc.)
+     * @param P Monthly payment amount (must be >= 0)
+     * @throws std::invalid_argument if P < 0
+     */
+    void setPayment(long double P);
+    long double getPayment() const;
 
-  void setPeriodTotal(int N)        { periodTotal_ = N; periodTotalSet_ = true; }
-  inline int getPeriodTotal() const { return periodTotal_; }
+    /**
+     * @brief Set total loan period (months).
+     * @param N Total months (must be > 0)
+     * @throws std::invalid_argument if N <= 0
+     */
+    void setPeriodTotal(int N);
+    int getPeriodTotal() const;
 
-  void setPeriodElapsed(int n)         { periodElapsed_ = n; periodElapsedSet_ = true; }
-  inline int getPeriodElapsed() const  { return periodElapsed_; }
+    /**
+     * @brief Set elapsed payments (months).
+     */
+    void setPeriodElapsed(int n);
+    int getPeriodElapsed() const;
 
-  inline void setOpeningFee(float fee) { openingFee_ = fee; }
-  inline float getOpeningFee() const   { return openingFee_; }
+    void setOpeningFee(long double fee);
+    long double getOpeningFee() const;
 
-  inline void setOpeningPercent(float percent) { openingPercent_ = percent; }
-  inline float getOpeningPercent() const       { return openingPercent_; }
+    void setOpeningPercent(long double percent);
+    long double getOpeningPercent() const;
 
-  inline void reset() {
-    amount_ = initialPayment_ = interest_ = interestPeriodic_ = payment_ = openingFee_ = openingPercent_ = 0.0;
-    periodTotal_ = periodElapsed_ = 0;
-    amountSet_ = interestSet_ = paymentSet_ = periodTotalSet_ = periodElapsedSet_ = false;
-  }
+    /**
+     * @brief Reset all values to zero/default.
+     */
+    void reset();
 
-  //
-  // The actual calculation methods
-  //
+    // Calculation methods (brief docs)
+    /**
+     * @brief Calculate loan balance after periodElapsed_ payments.
+     * @return Remaining balance
+     */
+    long double calculateLoanBalance();
 
-  float calculateLoanBalance();
-  float calculatePayment();
-  float calculateNumberPayments();
-  float calculateLoanAmount();
-  float calculateInterestRate();
-  // The effective interest rate, once fees have been applied
-  float calculateEffectiveInterestRate();
+    /**
+     * @brief Calculate monthly payment (EMI) using current values:
+     *        amount_, initialPayment_, interest_, periodTotal_, openingFee_, openingPercent_.
+     * @return monthly payment
+     */
+    long double calculatePayment();
 
-  std::string toString();
+    /**
+     * @brief Calculate number of payments required given amount_, payment_, interest_.
+     * @return number of payments (months)
+     */
+    long double calculateNumberPayments();
+
+    long double calculateLoanAmount();
+    long double calculateInterestRate();
+    long double calculateEffectiveInterestRate();
+
+    /**
+     * @brief Return a compact summary string of current values.
+     * @return formatted string
+     */
+    std::string toString();
 
 private:
-  float amount_;        // loan amount
-  bool amountSet_;
+    long double amount_;
+    bool amountSet_;
 
-  float initialPayment_;     // initial down payment
+    long double initialPayment_;
+    long double interest_;
+    long double interestPeriodic_;
+    bool interestSet_;
 
-  float interest_;          // interest rate, something like 6.75
-  float interestPeriodic_;  // this will be .0675/12
-  bool interestSet_;
+    long double payment_;
+    bool paymentSet_;
 
-  float payment_;       // payment amount
-  bool paymentSet_;
+    int periodTotal_;
+    bool periodTotalSet_;
 
-  int periodTotal_;     // total payment periods
-  bool periodTotalSet_;
+    int periodElapsed_;
+    bool periodElapsedSet_;
 
-  int periodElapsed_;   // number of elapsed payment periods
-  bool periodElapsedSet_;
-
-  // These two are used if loans charge a fee opening fee or percentage
-  float openingFee_;
-  float openingPercent_;
-
+    long double openingFee_;
+    long double openingPercent_;
 };
 
 #endif // LOANCALCULATOR_H_INCLUDED
